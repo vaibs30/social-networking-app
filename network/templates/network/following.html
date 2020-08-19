@@ -1,0 +1,84 @@
+{% extends "network/layout.html" %}
+
+{% block script %}
+<script>
+  
+  function like_action(post_id) {
+   fetch('/like', {
+     method: 'POST',
+     body: JSON.stringify({
+       post_id: post_id,
+       action: 'like'
+     })
+   })
+   .then((res) => res.json())
+   .then((result) => {
+    location.reload();
+   })
+ }
+ function unlike_action(post_id) {
+   fetch('/like', {
+     method: 'POST',
+     body: JSON.stringify({
+       post_id: post_id,
+       action: 'unlike'
+     })
+   })
+   .then((res) => res.json())
+   .then((result) => {
+    location.reload();
+   })
+ }
+ </script>
+{% endblock %}
+
+{% block body %}
+<div class="container" style="font-family:'Times New Roman', Times, serif;"> 
+  <h3>Posts from users you follow:</h3>
+  <div class="row">
+  {% for post in posts %}
+  <div class="card text-white bg-info col-3" style="margin: 10px;">
+    <div class="card-header">
+      <div class="alert alert-warning" role="alert">
+        <div><a href="{% url 'profile' post.poster %}" class="alert-link">username : {{post.poster}}</a></div>
+        <div><small>{{post.timestamp}}</small></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p class="card-text">{{post.body}}</p>
+      <small>{{post.likers|length}} likes</small>
+      {% if post.liked == "true" %}
+      <a><button id="unlike" type="button" class="btn btn-light" onclick="unlike_action('{{post.id}}')">Unlike</button></a>
+      {% else %}
+      <a><button id="like" type="button" class="btn btn-warning" onclick="like_action('{{post.id}}')">Like</button></a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if posts.has_previous %}
+      <li class="page-item"><a href="?page={{ posts.previous_page_number }}" class="page-link">Previous</a></li>
+    {% else %}
+    <li class="disabled page-item"><a class="page-link">Previous</a></li>
+    {% endif %}
+    {% for i in posts.paginator.page_range %}
+      {% if posts.number == i %}
+        <li class="active page-item"><a class="page-link">{{ i }}</a></li>
+      {% else %}
+        <li class="page-item"><a href="?page={{ i }}" class="page-link">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+      <li class="page-item"><a href="?page={{ posts.next_page_number }}" class="page-link">Next</a></li>
+    {% else %}
+      <li class="disabled page-item"><a class="page-link">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+</div>
+  
+{% endblock %}

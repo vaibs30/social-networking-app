@@ -1,0 +1,52 @@
+{% extends "network/layout.html" %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+logged_user = "{% if user.is_authenticated %}{{ user }}{% endif %}"
+localStorage.setItem("logged_user",logged_user);
+post_id = "{% if user.is_authenticated %}{{ post_id }}{% endif %}"
+console.log(post_id);
+var reqHeaders = new Headers();
+reqHeaders.append("X-Custom-Header", post_id);
+fetch('/edit_post', {
+    headers : reqHeaders
+})
+    .then(response => response.json())
+    .then((post) => {
+        document.querySelector('#form-body').value = post.body
+    });
+
+document.querySelector('#post-form').onsubmit = function() {
+                fetch('/edit_post', {
+                method: 'POST',
+                body: JSON.stringify({
+                    body: document.querySelector('#form-body').value,
+                    id: post_id,
+                })
+                })
+                .then(response => response.json())
+                .then((result) => {
+                    // Print result
+                    console.log(result)
+                    }
+                );
+                }
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div id="newpost_view">
+    <h3>Edit your post:</h3>
+    <form id="post-form">
+        <div class="form-group">
+            Your username: <input disabled class="form-control" value="{{ request.user.username }}">
+        </div>
+        <div class="form-group" >
+            Content: <input id="form-body" class="form-control">
+        </div>
+        <input type="submit" class="btn btn-primary"/>
+    </form>
+</div>
+{% endblock %}

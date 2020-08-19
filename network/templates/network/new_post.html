@@ -1,0 +1,40 @@
+{% extends "network/layout.html" %}
+
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+logged_user = "{% if user.is_authenticated %}{{ user }}{% endif %}"
+localStorage.setItem("logged_user",logged_user);
+
+document.querySelector('#post-form').onsubmit = function() {
+fetch('new_post', {
+  method: 'POST',
+  body: JSON.stringify({
+      body: document.querySelector('#form-body').value
+  })
+})
+.then(response => response.json())
+.then((result) => {
+    // Print result
+    console.log(result)
+    }
+);
+}
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div id="newpost_view">
+    <h3>Your post:</h3>
+    <form id="post-form">
+        <div class="form-group">
+            Your username: <input disabled class="form-control" value="{{ request.user.username }}">
+        </div>
+        <div class="form-group" >
+            Content: <input id="form-body" class="form-control">
+        </div>
+        <input type="submit" class="btn btn-primary"/>
+    </form>
+</div>
+{% endblock %}
